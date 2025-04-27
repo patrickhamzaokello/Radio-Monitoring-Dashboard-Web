@@ -11,9 +11,8 @@ const defaultAudioState: AudioState = {
 };
 
 // Constants for audio sampling
-const SAMPLE_DURATION = 6000; // 6 seconds in milliseconds
-const BUFFER_SIZE = 2; // Number of samples to buffer before sending
-const SAMPLE_INTERVAL = 3000; // Sample every 3 seconds for smoother transitions
+const SAMPLE_DURATION = 8000; // 8 seconds in milliseconds
+const SAMPLE_INTERVAL = 20000; // Sample every 20 seconds
 
 const AudioContext = createContext<AudioContextState | null>(null);
 
@@ -34,9 +33,10 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
   const [audioElements, setAudioElements] = useState<Record<string, HTMLAudioElement>>({});
   const [audioStates, setAudioStates] = useState<Record<string, AudioState>>({});
   const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceNodesRef = useRef<Record<string, MediaElementAudioSourceNode>>({});
   const mediaRecordersRef = useRef<Record<string, MediaRecorder>>({});
   const recordingIntervalsRef = useRef<Record<string, NodeJS.Timeout>>({});
-  const audioBuffersRef = useRef<Record<string, Blob[]>>({});
+  const destinationsRef = useRef<Record<string, MediaStreamAudioDestinationNode>>({});
 
   // Initialize Web Audio API context
   useEffect(() => {
@@ -47,64 +47,116 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
   }, []);
 
   const sendAudioData = async (stationId: string, audioBlob: Blob) => {
-    submitAudio(stationId, audioBlob)
+    try {
+      // Create a new FormData for each submission
+      const formData = new FormData();
+      
+      // Use a unique filename with timestamp to prevent caching issues
+      const filename = `recording-${stationId}-${Date.now()}.webm`;
+      formData.append("file", audioBlob, filename);
+      formData.append("stationId", stationId);
+      formData.append("timestamp", new Date().toISOString());
+      
+      await submitAudio(formData);
+    } catch (error) {
+      console.error(`Error sending audio for ${stationId}:`, error);
+    }
   };
 
-  const startRecording = async (stationId: string, audioElement: HTMLAudioElement) => {
+  const createRecordingSetup = (stationId: string, audioElement: HTMLAudioElement) => {
     if (!audioContextRef.current) return;
 
     try {
-      const source = audioContextRef.current.createMediaElementSource(audioElement);
-      const destination = audioContextRef.current.createMediaStreamDestination();
-      source.connect(destination);
-      source.connect(audioContextRef.current.destination);
+      // Only create a source node if it doesn't exist yet
+      if (!sourceNodesRef.current[stationId]) {
+        const source = audioContextRef.current.createMediaElementSource(audioElement);
+        sourceNodesRef.current[stationId] = source;
+        
+        // Connect to audio context destination for playback
+        source.connect(audioContextRef.current.destination);
+      }
 
+      // Create a new MediaStreamDestination for each recording session
+      const destination = audioContextRef.current.createMediaStreamDestination();
+      destinationsRef.current[stationId] = destination;
+      
+      // Connect the existing source to the new destination
+      sourceNodesRef.current[stationId].connect(destination);
+      
+      return destination;
+    } catch (error) {
+      console.error(`Error setting up audio nodes for ${stationId}:`, error);
+      return null;
+    }
+  };
+
+  const startRecording = async (stationId: string, audioElement: HTMLAudioElement) => {
+    // Stop any existing recording for this station
+    stopRecording(stationId);
+    
+    const destination = createRecordingSetup(stationId, audioElement);
+    if (!destination) return;
+
+    // Schedule regular recordings
+    recordingIntervalsRef.current[stationId] = setInterval(() => {
+      recordSample(stationId, destination);
+    }, SAMPLE_INTERVAL);
+    
+    // Start the first recording immediately
+    recordSample(stationId, destination);
+  };
+  
+  const recordSample = (stationId: string, destination: MediaStreamAudioDestinationNode) => {
+    try {
+      // Create a new MediaRecorder for each recording session
       const mediaRecorder = new MediaRecorder(destination.stream, {
         mimeType: 'audio/webm;codecs=opus',
         audioBitsPerSecond: 128000,
       });
-
+      
       mediaRecordersRef.current[stationId] = mediaRecorder;
-      audioBuffersRef.current[stationId] = [];
-
-      mediaRecorder.ondataavailable = async (event) => {
+      
+      const chunks: Blob[] = [];
+      
+      mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          const buffers = audioBuffersRef.current[stationId];
-          buffers.push(event.data);
-
-          // When we have enough samples, combine and send them
-          if (buffers.length >= BUFFER_SIZE) {
-            const combinedBlob = new Blob(buffers, { type: 'audio/webm' });
-            await sendAudioData(stationId, combinedBlob);
-            audioBuffersRef.current[stationId] = [];
-          }
+          chunks.push(event.data);
         }
       };
-
-      // Start recording with smaller chunks for more frequent samples
-      mediaRecorder.start(SAMPLE_INTERVAL);
-
-      // Set up interval to ensure continuous recording
-      recordingIntervalsRef.current[stationId] = setInterval(() => {
-        if (mediaRecorder.state === 'inactive') {
-          mediaRecorder.start(SAMPLE_INTERVAL);
+      
+      mediaRecorder.onstop = async () => {
+        if (chunks.length === 0) return;
+        
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        await sendAudioData(stationId, audioBlob);
+      };
+      
+      // Start recording
+      mediaRecorder.start();
+      
+      // Stop after SAMPLE_DURATION milliseconds
+      setTimeout(() => {
+        if (mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
         }
       }, SAMPLE_DURATION);
-
     } catch (error) {
-      console.error(`Error setting up recording for ${stationId}:`, error);
+      console.error(`Error recording sample for ${stationId}:`, error);
     }
   };
 
   const stopRecording = (stationId: string) => {
+    // Stop the current mediaRecorder
     const mediaRecorder = mediaRecordersRef.current[stationId];
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
     }
-    clearInterval(recordingIntervalsRef.current[stationId]);
-    delete mediaRecordersRef.current[stationId];
-    delete recordingIntervalsRef.current[stationId];
-    delete audioBuffersRef.current[stationId];
+    
+    // Clear the recording interval
+    if (recordingIntervalsRef.current[stationId]) {
+      clearInterval(recordingIntervalsRef.current[stationId]);
+      delete recordingIntervalsRef.current[stationId];
+    }
   };
 
   // Initialize audio states and elements
@@ -114,39 +166,40 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
 
     stations.forEach((station) => {
       initialAudioStates[station.id] = { ...defaultAudioState };
-      
+
       const audio = new Audio();
       audio.volume = defaultAudioState.volume;
-      audio.preload = "none";
+      audio.preload = "auto"; // Changed from "none" to "auto" for better loading
       audio.crossOrigin = "anonymous";
-      
+
       audio.addEventListener("playing", () => {
         updateStatus(station.id, "playing");
         startRecording(station.id, audio);
       });
-      
+
       audio.addEventListener("pause", () => {
         updateStatus(station.id, "paused");
         stopRecording(station.id);
       });
-      
+
       audio.addEventListener("error", () => {
         console.error(`Error loading stream for ${station.name}:`, audio.error);
         updateStatus(station.id, "error");
         stopRecording(station.id);
       });
-      
+
       audio.addEventListener("waiting", () => updateStatus(station.id, "loading"));
       audio.addEventListener("loadstart", () => updateStatus(station.id, "loading"));
-      
+
       audio.src = station.streamUrl;
-      
+
       initialAudioElements[station.id] = audio;
     });
 
     setAudioStates(initialAudioStates);
     setAudioElements(initialAudioElements);
 
+    // Play all stations initially
     Object.entries(initialAudioElements).forEach(([id, audio]) => {
       void audio.play().catch((error) => {
         console.error(`Failed to play ${id}:`, error);
@@ -154,19 +207,26 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
       });
     });
 
+    // Cleanup function
     return () => {
+      // Stop all recordings
       Object.entries(mediaRecordersRef.current).forEach(([stationId]) => {
         stopRecording(stationId);
       });
+      
+      // Clear all intervals
+      Object.values(recordingIntervalsRef.current).forEach(clearInterval);
+      
+      // Stop all audio
       Object.values(initialAudioElements).forEach((audio) => {
         audio.pause();
         audio.src = "";
         audio.load();
       });
-      Object.values(recordingIntervalsRef.current).forEach(clearInterval);
     };
   }, [stations]);
 
+  // Rest of your code remains the same
   const updateStatus = (id: string, status: StreamStatus) => {
     setAudioStates((prev) => ({
       ...prev,
@@ -210,7 +270,7 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
 
     await Promise.all(Object.entries(audioElements).map(async ([stationId, audio]) => {
       const isFocused = stationId === id;
-      
+
       try {
         if (isFocused) {
           audio.volume = audioStates[stationId]?.volume || 0.5;
@@ -239,7 +299,7 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
         if (audio.paused) {
           await audio.play();
         }
-        
+
         setAudioStates((prev) => ({
           ...prev,
           [id]: { ...prev[id], isFocused: false },
