@@ -22,4 +22,6 @@ export interface AudioContextState {
   playAll: () => void;
   pauseAll: () => void;
   stopAll: () => void;
+  toggleVolumeAll: () => void;
+  isAllMuted: boolean;
 }

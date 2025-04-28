@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
 import { AudioContextState, AudioState, RadioStation, StreamStatus } from "@/lib/types";
 import { submitAudio } from "@/app/actions/sendAudioData";
+import { Volume } from "lucide-react";
 
 const defaultAudioState: AudioState = {
   volume: 0.5,
@@ -32,6 +33,7 @@ interface AudioProviderProps {
 export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
   const [audioElements, setAudioElements] = useState<Record<string, HTMLAudioElement>>({});
   const [audioStates, setAudioStates] = useState<Record<string, AudioState>>({});
+  const [isAllMuted, setIsAllMuted] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodesRef = useRef<Record<string, MediaElementAudioSourceNode>>({});
   const mediaRecordersRef = useRef<Record<string, MediaRecorder>>({});
@@ -327,6 +329,26 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
     });
   };
 
+  const toggleVolumeAll = () => {
+    // Determine the new volume by checking if all audio elements are currently muted
+    const allMuted = Object.values(audioElements).every(
+      (audio) => !audio || audio.volume === 0
+    );
+    
+    const newVolume = allMuted ? 0.5 : 0;
+    setIsAllMuted(!allMuted);
+  
+    Object.entries(audioElements).forEach(([id, audio]) => {
+      if (!audio) return;
+  
+      audio.volume = newVolume;
+      setAudioStates((prev) => ({
+        ...prev,
+        [id]: { ...prev[id], volume: newVolume },
+      }));
+    });
+  };
+
   return (
     <AudioContext.Provider
       value={{
@@ -337,6 +359,8 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
         playAll,
         pauseAll,
         stopAll,
+        toggleVolumeAll,
+        isAllMuted
       }}
     >
       {children}
