@@ -37,7 +37,7 @@ export function DashboardHeader() {
       <div className="container flex h-14 items-center px-4">
         <div className="flex items-center mr-4">
           <Radio className="h-6 w-6 mr-2" />
-          <h1 className="text-lg font-medium">Radio Stream Dashboard</h1>
+          <h1 className="text-lg font-medium">Mwonya Radio Monitor</h1>
         </div>
 
         <Separator orientation="vertical" className="mx-2 h-6" />
