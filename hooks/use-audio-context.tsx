@@ -36,6 +36,7 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
   const [isAllMuted, setIsAllMuted] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodesRef = useRef<Record<string, MediaElementAudioSourceNode>>({});
+  const gainNodesRef = useRef<Record<string, GainNode>>({});  // For playback volume only
   const mediaRecordersRef = useRef<Record<string, MediaRecorder>>({});
   const recordingIntervalsRef = useRef<Record<string, NodeJS.Timeout>>({});
   const destinationsRef = useRef<Record<string, MediaStreamAudioDestinationNode>>({});
@@ -69,20 +70,27 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
     if (!audioContextRef.current) return;
 
     try {
-      // Only create a source node if it doesn't exist yet
+      // Only create audio nodes if they don't exist yet
       if (!sourceNodesRef.current[stationId]) {
         const source = audioContextRef.current.createMediaElementSource(audioElement);
         sourceNodesRef.current[stationId] = source;
         
-        // Connect to audio context destination for playback
-        source.connect(audioContextRef.current.destination);
+        // Create gain node for PLAYBACK volume control only
+        const gainNode = audioContextRef.current.createGain();
+        gainNode.gain.value = audioElement.volume; // Initialize with current volume
+        gainNodesRef.current[stationId] = gainNode;
+        
+        // Connect source -> gain -> audioContext.destination for playback
+        source.connect(gainNode);
+        gainNode.connect(audioContextRef.current.destination);
       }
 
-      // Create a new MediaStreamDestination for each recording session
+      // Create a new MediaStreamDestination for recording
       const destination = audioContextRef.current.createMediaStreamDestination();
       destinationsRef.current[stationId] = destination;
       
-      // Connect the existing source to the new destination
+      // IMPORTANT: Connect source directly to destination for recording
+      // This bypasses the gain node, ensuring full volume recording
       sourceNodesRef.current[stationId].connect(destination);
       
       return destination;
@@ -161,6 +169,14 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
     }
   };
 
+  // Helper function to update gain node value for playback only
+  const updatePlaybackVolume = (stationId: string, volume: number) => {
+    const gainNode = gainNodesRef.current[stationId];
+    if (gainNode) {
+      gainNode.gain.value = volume;
+    }
+  };
+
   // Initialize audio states and elements
   useEffect(() => {
     const initialAudioStates: Record<string, AudioState> = {};
@@ -228,7 +244,6 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
     };
   }, [stations]);
 
-  // Rest of your code remains the same
   const updateStatus = (id: string, status: StreamStatus) => {
     setAudioStates((prev) => ({
       ...prev,
@@ -257,7 +272,9 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
     const audio = audioElements[id];
     if (!audio) return;
 
-    audio.volume = volume;
+    // Only update the playback volume, not the recording volume
+    updatePlaybackVolume(id, volume);
+    
     setAudioStates((prev) => ({
       ...prev,
       [id]: { ...prev[id], volume },
@@ -272,15 +289,14 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
 
     await Promise.all(Object.entries(audioElements).map(async ([stationId, audio]) => {
       const isFocused = stationId === id;
+      const newVolume = isFocused ? (audioStates[stationId]?.volume || 0.5) : 0;
 
       try {
-        if (isFocused) {
-          audio.volume = audioStates[stationId]?.volume || 0.5;
-          if (audio.paused) {
-            await audio.play();
-          }
-        } else {
-          audio.volume = 0;
+        // Only update playback volume, recording continues at full volume
+        updatePlaybackVolume(stationId, newVolume);
+        
+        if (isFocused && audio.paused) {
+          await audio.play();
         }
 
         setAudioStates((prev) => ({
@@ -296,8 +312,12 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
 
   const playAll = async () => {
     await Promise.all(Object.entries(audioElements).map(async ([id, audio]) => {
+      const volume = audioStates[id]?.volume || 0.5;
+      
       try {
-        audio.volume = audioStates[id]?.volume || 0.5;
+        // Only update playback volume, recording continues at full volume
+        updatePlaybackVolume(id, volume);
+        
         if (audio.paused) {
           await audio.play();
         }
@@ -338,10 +358,10 @@ export const AudioProvider = ({ children, stations }: AudioProviderProps) => {
     const newVolume = allMuted ? 0.5 : 0;
     setIsAllMuted(!allMuted);
   
-    Object.entries(audioElements).forEach(([id, audio]) => {
-      if (!audio) return;
-  
-      audio.volume = newVolume;
+    Object.entries(audioElements).forEach(([id]) => {
+      // Only update playback volume, recording continues at full volume
+      updatePlaybackVolume(id, newVolume);
+      
       setAudioStates((prev) => ({
         ...prev,
         [id]: { ...prev[id], volume: newVolume },
