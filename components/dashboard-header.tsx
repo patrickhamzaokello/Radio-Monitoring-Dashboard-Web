@@ -14,6 +14,11 @@ export function DashboardHeader() {
     (state) => state.status === "playing"
   );
 
+  // Check if any stream is playing
+  const anyStreamPlaying = Object.values(audioStates).some(
+    (state) => state.status === "playing"
+  );
+
   // Count active streams
   const activeStreams = Object.values(audioStates).filter(
     (state) => state.status === "playing"
@@ -41,10 +46,10 @@ export function DashboardHeader() {
           <Button
             variant="outline"
             size="sm"
-            onClick={allStreamsPlaying ? pauseAll : playAll}
+            onClick={anyStreamPlaying ? pauseAll : playAll}
             className="h-8"
           >
-            {allStreamsPlaying ? (
+            {anyStreamPlaying ? (
               <>
                 <PauseCircle className="mr-2 h-4 w-4" />
                 Pause All
