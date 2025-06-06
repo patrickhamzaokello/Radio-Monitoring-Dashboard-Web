@@ -82,7 +82,7 @@ export const RADIO_STATIONS: RadioStation[] = [
   {
     id: "station12",
     name: "QFM 94.3 Lira",
-    streamUrl: "https://hoth.alonhosting.com:1715/stream",
+    streamUrl: "https://hoth.alonhosting.com:3975/stream",
     logo: "https://assets.mwonya.com/images/artwork/qfm_radio.png",
     description: "QFM 94.3 Lira is the best radio in town."
   },

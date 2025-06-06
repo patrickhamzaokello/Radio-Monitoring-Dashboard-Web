@@ -245,7 +245,7 @@ export function RadioCard({ station }: RadioCardProps) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [status, volume, isFocused]);
+  }, [status, isFocused]);
 
   return (
     <TooltipProvider>

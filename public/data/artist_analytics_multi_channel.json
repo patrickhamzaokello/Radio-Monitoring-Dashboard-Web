@@ -1,0 +1,299 @@
+{
+  "metadata": {
+    "total_artists": 3,
+    "total_channels": 4,
+    "analysis_timestamp": "2025-06-05 23:31:44",
+    "data_source": "YouTube API v3",
+    "script_version": "3.0_multi_channel"
+  },
+  "artist_summary_stats": {
+    "average_total_subscribers": 3359,
+    "top_performer": {
+      "name": "Kasid Puma",
+      "total_subscribers": 3450,
+      "channel_count": 1
+    },
+    "highest_engagement": {
+      "name": "Doggy Kizz",
+      "engagement_rate": 4.62
+    },
+    "best_momentum": {
+      "name": "Kasid Puma",
+      "momentum_score": -26.49
+    },
+    "most_active": {
+      "name": "Doggy Kizz",
+      "upload_frequency": 16.67
+    },
+    "active_artists_count": 2,
+    "growing_artists_count": 0,
+    "multi_channel_artists": 1
+  },
+  "artists": [
+    {
+      "artist_name": "Kasid Puma",
+      "channel_count": 1,
+      "primary_channel_name": "Kasid Puma",
+      "primary_channel_id": "UC0zsKgMOMUjqCFSi8xkaXRA",
+      "channels": [
+        {
+          "name": "Kasid Puma",
+          "id": "UC0zsKgMOMUjqCFSi8xkaXRA",
+          "subscribers": 3450
+        }
+      ],
+      "data_fetched_at": "2025-06-05 23:31:41",
+      "total_subscribers": 3450,
+      "total_views": 291646,
+      "total_videos": 25,
+      "avg_views_per_video": 11666,
+      "recent_avg_views": 11973,
+      "recent_engagement_rate": 1.87,
+      "momentum_score": -26.49,
+      "upload_frequency_per_month": 2.35,
+      "latest_video_days_ago": 34,
+      "avg_channel_age_years": 1.1,
+      "popularity_score": 6469,
+      "subscribers_per_year": 3136,
+      "status": "declining",
+      "individual_channels": [
+        {
+          "channel_name": "Kasid Puma",
+          "channel_id": "UC0zsKgMOMUjqCFSi8xkaXRA",
+          "data_fetched_at": "2025-06-05 23:31:40",
+          "subscribers": 3450,
+          "total_views": 291646,
+          "video_count": 25,
+          "avg_views_per_video": 11666,
+          "recent_avg_views": 11973,
+          "recent_avg_likes": 154,
+          "recent_engagement_rate": 1.87,
+          "momentum_score": -26.49,
+          "upload_frequency_per_month": 2.35,
+          "latest_video_days_ago": 34,
+          "channel_age_years": 1.1,
+          "popularity_score": 6480,
+          "subscribers_per_year": 3158,
+          "description": "No description",
+          "status": "declining",
+          "artist_name": "Kasid Puma"
+        }
+      ],
+      "rank": 1
+    },
+    {
+      "artist_name": "Kamuzu Urban Niga",
+      "channel_count": 2,
+      "primary_channel_name": "Kamuzu Urban Niga",
+      "primary_channel_id": "UC7YqDIR3GF9gSFrsE6gFioQ",
+      "channels": [
+        {
+          "name": "Kamuzu Urban Niga",
+          "id": "UC7YqDIR3GF9gSFrsE6gFioQ",
+          "subscribers": 3080
+        },
+        {
+          "name": "Kamuzu Urban Niga ug",
+          "id": "UC35_F_Fwi4alEu8rOeI97Kw",
+          "subscribers": 228
+        }
+      ],
+      "data_fetched_at": "2025-06-05 23:31:44",
+      "total_subscribers": 3308,
+      "total_views": 296192,
+      "total_videos": 46,
+      "avg_views_per_video": 6439,
+      "recent_avg_views": 5344,
+      "recent_engagement_rate": 3.73,
+      "momentum_score": -81.46,
+      "upload_frequency_per_month": 3.8,
+      "latest_video_days_ago": 9,
+      "avg_channel_age_years": 1.8,
+      "popularity_score": 4010,
+      "subscribers_per_year": 1845,
+      "status": "declining",
+      "individual_channels": [
+        {
+          "channel_name": "Kamuzu Urban Niga",
+          "channel_id": "UC7YqDIR3GF9gSFrsE6gFioQ",
+          "data_fetched_at": "2025-06-05 23:31:41",
+          "subscribers": 3080,
+          "total_views": 280839,
+          "video_count": 45,
+          "avg_views_per_video": 6241,
+          "recent_avg_views": 4601,
+          "recent_avg_likes": 82,
+          "recent_engagement_rate": 3.96,
+          "momentum_score": -87.49,
+          "upload_frequency_per_month": 4.08,
+          "latest_video_days_ago": 9,
+          "channel_age_years": 1.6,
+          "popularity_score": 3783,
+          "subscribers_per_year": 1900,
+          "description": "#danchallartist #vediodirecter #songwritter #filmzactor\n#musicartist based in Uganda Gulu city kamuzu a.k.a urban Niga known for hits like Gulu Vs Kampala,Alaalii,Jua kali...",
+          "status": "declining",
+          "artist_name": "Kamuzu Urban Niga"
+        },
+        {
+          "channel_name": "Kamuzu Urban Niga ug",
+          "channel_id": "UC35_F_Fwi4alEu8rOeI97Kw",
+          "data_fetched_at": "2025-06-05 23:31:43",
+          "subscribers": 228,
+          "total_views": 15353,
+          "video_count": 1,
+          "avg_views_per_video": 15353,
+          "recent_avg_views": 15382,
+          "recent_avg_likes": 89,
+          "recent_engagement_rate": 0.58,
+          "momentum_score": 0,
+          "upload_frequency_per_month": 0,
+          "latest_video_days_ago": 1590,
+          "channel_age_years": 4.4,
+          "popularity_score": 7060,
+          "subscribers_per_year": 52,
+          "description": "No description",
+          "status": "declining",
+          "artist_name": "Kamuzu Urban Niga"
+        }
+      ],
+      "rank": 2
+    },
+    {
+      "artist_name": "Doggy Kizz",
+      "channel_count": 1,
+      "primary_channel_name": "Doggy Kizz",
+      "primary_channel_id": "UC1MSuZYEIsPAYu7Neh4mc9w",
+      "channels": [
+        {
+          "name": "Doggy Kizz",
+          "id": "UC1MSuZYEIsPAYu7Neh4mc9w",
+          "subscribers": 3320
+        }
+      ],
+      "data_fetched_at": "2025-06-05 23:31:39",
+      "total_subscribers": 3320,
+      "total_views": 309531,
+      "total_videos": 204,
+      "avg_views_per_video": 1517,
+      "recent_avg_views": 447,
+      "recent_engagement_rate": 4.62,
+      "momentum_score": -68.05,
+      "upload_frequency_per_month": 16.67,
+      "latest_video_days_ago": 2,
+      "avg_channel_age_years": 3.3,
+      "popularity_score": 1938,
+      "subscribers_per_year": 1006,
+      "status": "declining",
+      "individual_channels": [
+        {
+          "channel_name": "Doggy Kizz",
+          "channel_id": "UC1MSuZYEIsPAYu7Neh4mc9w",
+          "data_fetched_at": "2025-06-05 23:31:38",
+          "subscribers": 3320,
+          "total_views": 309531,
+          "video_count": 204,
+          "avg_views_per_video": 1517,
+          "recent_avg_views": 447,
+          "recent_avg_likes": 14,
+          "recent_engagement_rate": 4.62,
+          "momentum_score": -68.05,
+          "upload_frequency_per_month": 16.67,
+          "latest_video_days_ago": 2,
+          "channel_age_years": 3.3,
+          "popularity_score": 1988,
+          "subscribers_per_year": 992,
+          "description": "Doggy kizz...",
+          "status": "declining",
+          "artist_name": "Doggy Kizz"
+        }
+      ],
+      "rank": 3
+    }
+  ],
+  "individual_channels": [
+    {
+      "channel_name": "Kamuzu Urban Niga ug",
+      "channel_id": "UC35_F_Fwi4alEu8rOeI97Kw",
+      "data_fetched_at": "2025-06-05 23:31:43",
+      "subscribers": 228,
+      "total_views": 15353,
+      "video_count": 1,
+      "avg_views_per_video": 15353,
+      "recent_avg_views": 15382,
+      "recent_avg_likes": 89,
+      "recent_engagement_rate": 0.58,
+      "momentum_score": 0.0,
+      "upload_frequency_per_month": 0.0,
+      "latest_video_days_ago": 1590,
+      "channel_age_years": 4.4,
+      "popularity_score": 7060,
+      "subscribers_per_year": 52,
+      "description": "No description",
+      "status": "declining",
+      "artist_name": "Kamuzu Urban Niga"
+    },
+    {
+      "channel_name": "Kasid Puma",
+      "channel_id": "UC0zsKgMOMUjqCFSi8xkaXRA",
+      "data_fetched_at": "2025-06-05 23:31:40",
+      "subscribers": 3450,
+      "total_views": 291646,
+      "video_count": 25,
+      "avg_views_per_video": 11666,
+      "recent_avg_views": 11973,
+      "recent_avg_likes": 154,
+      "recent_engagement_rate": 1.87,
+      "momentum_score": -26.49,
+      "upload_frequency_per_month": 2.35,
+      "latest_video_days_ago": 34,
+      "channel_age_years": 1.1,
+      "popularity_score": 6480,
+      "subscribers_per_year": 3158,
+      "description": "No description",
+      "status": "declining",
+      "artist_name": "Kasid Puma"
+    },
+    {
+      "channel_name": "Kamuzu Urban Niga",
+      "channel_id": "UC7YqDIR3GF9gSFrsE6gFioQ",
+      "data_fetched_at": "2025-06-05 23:31:41",
+      "subscribers": 3080,
+      "total_views": 280839,
+      "video_count": 45,
+      "avg_views_per_video": 6241,
+      "recent_avg_views": 4601,
+      "recent_avg_likes": 82,
+      "recent_engagement_rate": 3.96,
+      "momentum_score": -87.49,
+      "upload_frequency_per_month": 4.08,
+      "latest_video_days_ago": 9,
+      "channel_age_years": 1.6,
+      "popularity_score": 3783,
+      "subscribers_per_year": 1900,
+      "description": "#danchallartist #vediodirecter #songwritter #filmzactor\n#musicartist based in Uganda Gulu city kamuzu a.k.a urban Niga known for hits like Gulu Vs Kampala,Alaalii,Jua kali...",
+      "status": "declining",
+      "artist_name": "Kamuzu Urban Niga"
+    },
+    {
+      "channel_name": "Doggy Kizz",
+      "channel_id": "UC1MSuZYEIsPAYu7Neh4mc9w",
+      "data_fetched_at": "2025-06-05 23:31:38",
+      "subscribers": 3320,
+      "total_views": 309531,
+      "video_count": 204,
+      "avg_views_per_video": 1517,
+      "recent_avg_views": 447,
+      "recent_avg_likes": 14,
+      "recent_engagement_rate": 4.62,
+      "momentum_score": -68.05,
+      "upload_frequency_per_month": 16.67,
+      "latest_video_days_ago": 2,
+      "channel_age_years": 3.3,
+      "popularity_score": 1988,
+      "subscribers_per_year": 992,
+      "description": "Doggy kizz...",
+      "status": "declining",
+      "artist_name": "Doggy Kizz"
+    }
+  ]
+}
