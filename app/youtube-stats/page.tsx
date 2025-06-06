@@ -13,33 +13,71 @@ import {
   Search,
 } from "lucide-react";
 import { useArtistMultiAnalyticsData } from "@/hooks/useArtistMultiChannelData";
+import MetricsExplanation from "@/components/MetricsExplanation";
 
 const Dashboard = () => {
   const { statsdata, loading, error } = useArtistMultiAnalyticsData();
-  const [data, setData] = useState(statsdata);
-  const [selectedArtist, setSelectedArtist] = useState(null);
+  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("rank");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const formatNumber = (num) => {
+  // Handle loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading artist analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Error loading data:</p>
+          <p className="text-gray-600">{error || "Something went wrong"}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle null or missing data
+  if (!statsdata || !statsdata.artists) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">No data available</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Now we can safely use the data
+  const data = statsdata;
+
+  const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toLocaleString();
   };
 
-  const getStatusColor = (status) => {
-    const colors = {
-      hot: "bg-gray-900 text-white",
-      rising: "bg-gray-700 text-white",
-      stable: "bg-gray-500 text-white",
-      declining: "bg-gray-400 text-gray-900",
-      dormant: "bg-gray-300 text-gray-900",
-    };
-    return colors[status] || "bg-gray-300 text-gray-900";
+  const getStatusColor = (status: "hot" | "rising" | "stable" | "declining" | "dormant") => {
+      const colors = {
+        hot: "bg-gray-900 text-white",
+        rising: "bg-gray-700 text-white",
+        stable: "bg-gray-500 text-white",
+        declining: "bg-gray-400 text-gray-900",
+        dormant: "bg-gray-300 text-gray-900",
+      };
+      return colors[status];
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     if (status === "hot" || status === "rising")
       return <TrendingUp className="w-3 h-3" />;
     if (status === "declining") return <TrendingDown className="w-3 h-3" />;
@@ -73,13 +111,13 @@ const Dashboard = () => {
                 Artist Analytics
               </h1>
               <p className="text-sm text-gray-500 mt-1">
-                Last updated: {data.metadata.analysis_timestamp}
+                Last updated: {data.metadata?.analysis_timestamp || "N/A"}
               </p>
             </div>
             <div className="flex items-center space-x-4 text-sm text-gray-600">
-              <span>{data.metadata.total_artists} Artists</span>
+              <span>{data.metadata?.total_artists || 0} Artists</span>
               <span>•</span>
-              <span>{data.metadata.total_channels} Channels</span>
+              <span>{data.metadata?.total_channels || 0} Channels</span>
             </div>
           </div>
         </div>
@@ -93,11 +131,11 @@ const Dashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">Top Performer</p>
                 <p className="text-lg font-medium text-gray-900">
-                  {data.artist_summary_stats.top_performer.name}
+                  {data.artist_summary_stats?.top_performer?.name || "N/A"}
                 </p>
                 <p className="text-sm text-gray-600">
                   {formatNumber(
-                    data.artist_summary_stats.top_performer.total_subscribers
+                    data.artist_summary_stats?.top_performer?.total_subscribers || 0
                   )}{" "}
                   subscribers
                 </p>
@@ -111,10 +149,10 @@ const Dashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">Highest Engagement</p>
                 <p className="text-lg font-medium text-gray-900">
-                  {data.artist_summary_stats.highest_engagement.name}
+                  {data.artist_summary_stats?.highest_engagement?.name || "N/A"}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {data.artist_summary_stats.highest_engagement.engagement_rate}
+                  {data.artist_summary_stats?.highest_engagement?.engagement_rate || 0}
                   %
                 </p>
               </div>
@@ -127,10 +165,10 @@ const Dashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">Best Momentum</p>
                 <p className="text-lg font-medium text-gray-900">
-                  {data.artist_summary_stats.best_momentum.name}
+                  {data.artist_summary_stats?.best_momentum?.name || "N/A"}
                 </p>
                 <p className="text-sm text-gray-600">
-                  +{data.artist_summary_stats.best_momentum.momentum_score}%
+                  +{data.artist_summary_stats?.best_momentum?.momentum_score || 0}%
                 </p>
               </div>
               <TrendingUp className="w-8 h-8 text-gray-400" />
@@ -142,15 +180,19 @@ const Dashboard = () => {
               <div>
                 <p className="text-sm text-gray-500">Active Artists</p>
                 <p className="text-lg font-medium text-gray-900">
-                  {data.artist_summary_stats.active_artists_count}
+                  {data.artist_summary_stats?.active_artists_count || 0}
                 </p>
                 <p className="text-sm text-gray-600">
-                  of {data.metadata.total_artists} total
+                  of {data.metadata?.total_artists || 0} total
                 </p>
               </div>
               <Calendar className="w-8 h-8 text-gray-400" />
             </div>
           </div>
+        </div>
+
+        <div className="mb-8">
+          <MetricsExplanation />
         </div>
 
         {/* Controls */}
@@ -193,7 +235,7 @@ const Dashboard = () => {
 
         {/* Artist List */}
         <div className="space-y-4">
-          {filteredArtists.map((artist) => (
+          {filteredArtists.map((artist, index) => (
             <div
               key={artist.artist_name}
               className="bg-white border border-gray-200 p-6 cursor-pointer hover:border-gray-300 transition-colors"
@@ -208,7 +250,7 @@ const Dashboard = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="text-2xl font-light text-gray-400">
-                    #{artist.rank}
+                    #{index + 1}
                   </div>
                   <div>
                     <div className="flex items-center space-x-3">
@@ -232,6 +274,7 @@ const Dashboard = () => {
                     <p className="text-sm text-gray-500 mt-1">
                       {formatNumber(artist.total_subscribers)} subscribers •{" "}
                       {formatNumber(artist.total_views)} views
+                       •{" "}Rank #{artist.rank}
                     </p>
                   </div>
                 </div>
@@ -323,7 +366,7 @@ const Dashboard = () => {
                         {artist.channel_count})
                       </h4>
                       <div className="space-y-2">
-                        {artist.channels.map((channel) => (
+                        {artist.channels?.map((channel) => (
                           <div
                             key={channel.id}
                             className="flex justify-between items-center p-3 bg-gray-50"
@@ -335,7 +378,7 @@ const Dashboard = () => {
                               {formatNumber(channel.subscribers)} subs
                             </span>
                           </div>
-                        ))}
+                        )) || <p className="text-sm text-gray-500">No channel data available</p>}
                       </div>
                     </div>
                   </div>
